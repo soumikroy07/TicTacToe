@@ -1,0 +1,189 @@
+package com.soumik.oop.TicTacToe;
+
+public class Players {
+    private String Name;
+    private char symbol;
+
+    public String getName() {
+        return Name;
+    }
+
+    public char getSymbol() {
+        return symbol;
+    }
+
+    public void setName(String name) {
+        Name = name;
+    }
+
+    public void setSymbol(char symbol) {
+        this.symbol = symbol;
+    }
+
+    public Players(String name, char symbol) {
+        setName(name);
+        setSymbol(symbol);
+    }
+}
+
+
+package com.soumik.oop.TicTacToe;
+
+public class Board {
+
+    private static char[][] board;
+    private char p1Symbol;
+    private char p2Symbol;
+    private static final int boardSize=3;
+    private static final char EMPTY = ' ';
+    private int count; //count the no of cells which are filled
+    public static final int PLAYER1WINS=1;
+    public static final int PLAYER2WINS=2;
+    public static final int DRAW=3;
+    public static final int INCOMPLETE=4;
+    public static final int INVALID=5;
+
+    public Board(char p1Symbol, char p2Symbol) {
+        this.p1Symbol = p1Symbol;
+        this.p2Symbol = p2Symbol;
+        board = new char[boardSize][boardSize];
+        for(int i=0;i<boardSize;i++){
+            for(int j=0;j<boardSize;j++){
+                board[i][j] = EMPTY;
+            }
+        }
+    }
+
+    static void print(){
+        System.out.println("------------");
+        for (int i=0;i< boardSize ;i++){
+            for (int j=0;j<boardSize;j++){
+                System.out.print("| "+board[i][j]+" |");
+            }
+            System.out.println();
+        }
+        System.out.println("------------");
+    }
+
+    public int move(char symbol, int x, int y) {
+        if(x<0 || x>=boardSize || y<0 || y>=boardSize || board[x][y] != EMPTY){
+            return INVALID;
+        }
+
+        board[x][y] = symbol;
+        count++;
+
+        if(board[x][0] == board[x][1] && board[x][0] == board[x][2]){
+            return p1Symbol == symbol ? PLAYER1WINS : PLAYER2WINS;
+        }else if(board[0][y] == board[1][y] && board[0][y] == board[2][y]){
+            return p1Symbol == symbol ? PLAYER1WINS : PLAYER2WINS;
+        }else if(board[0][0] != EMPTY && board[0][0] == board[1][1] && board[0][0] == board[2][2]){
+            return p1Symbol == symbol ? PLAYER1WINS : PLAYER2WINS;
+        }else if(board[0][2] != EMPTY && board[0][2] == board[1][1] && board[0][2] == board[2][0]){
+            return p1Symbol == symbol ? PLAYER1WINS : PLAYER2WINS;
+        }
+
+        if (count == boardSize * boardSize){
+            return DRAW;
+        }
+        return INCOMPLETE;
+    }
+}
+
+
+package com.soumik.oop.TicTacToe;
+
+import java.util.Scanner;
+
+public class TicTacToe {
+
+    private Players player1,player2;
+    private Board board;
+    private int playerCount=0;
+
+    public static void main(String[] args) {
+        TicTacToe t = new TicTacToe();
+        t.startGame();
+    }
+
+    public void startGame() {
+
+        // Take players input
+
+        Scanner sc = new Scanner(System.in);
+
+        player1 = takePlayersInput(++playerCount);
+        player2 = takePlayersInput(++playerCount);
+
+        while(player1.getSymbol()==player2.getSymbol()){
+            System.out.println(player2.getSymbol() + "is already chosen, take another one" );
+            player2.setSymbol(sc.next().charAt(0));
+        }
+
+        // Create the board
+
+        board = new Board(player1.getSymbol(),player2.getSymbol());
+
+        // Run the game
+
+        boolean player1Turn = true;
+        int status=Board.INCOMPLETE;
+        while (status == Board.INVALID || status == Board.INCOMPLETE){
+            if(player1Turn){
+                System.out.println("Player 1 - " + player1.getName()+"'s turn ");
+                System.out.println("Choose your cell ");
+                int x= sc.nextInt();
+
+                int y = sc.nextInt();
+
+                status=board.move(player1.getSymbol(),x,y);
+                if(status==Board.INVALID){
+                    System.out.println("Invalid turn!!S Try again ");
+                    continue;
+                }else{
+                    player1Turn=false;
+                    Board.print();
+                }
+            }else{
+                System.out.println("Player 2 - " + player2.getName()+"'s turn ");
+                System.out.println("Choose your cell ");
+                int x= sc.nextInt();
+
+                int y = sc.nextInt();
+
+                status=board.move(player2.getSymbol(),x,y);
+                if(status==Board.INVALID){
+                    System.out.println("Invalid turn!! Try again ");
+                    continue;
+                }else{
+                    player1Turn=true;
+                    Board.print();
+                }
+            }
+        }
+
+        if (status == Board.PLAYER1WINS){
+            System.out.println("Player 1 - "+player1.getName()+" wins..!!");
+        }else if (status == Board.PLAYER2WINS){
+            System.out.println("Player 2 - "+player2.getName()+" wins..!!");
+        }else {
+            System.out.println("It's a draw match..!");
+        }
+    }
+
+    public Players takePlayersInput(int n){
+
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Enter "+n+" player name : " );
+        String name=sc.next();
+
+        System.out.println("Enter "+n+" player symbol : ");
+        char symbol = sc.next().charAt(0);
+
+        Players p = new Players(name,symbol);
+
+        return p;
+    }
+
+}
